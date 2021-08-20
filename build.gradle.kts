@@ -63,6 +63,7 @@ kotlin {
                 implementation("io.ktor:ktor-html-builder:$ktorVersion")
                 implementation("io.ktor:ktor-auth-jwt:$ktorVersion")
                 implementation("io.ktor:ktor-serialization:$ktorVersion")
+                implementation("io.ktor:ktor-websockets:$ktorVersion")
                 implementation("com.expediagroup:graphql-kotlin-server:4.1.1")
             }
         }

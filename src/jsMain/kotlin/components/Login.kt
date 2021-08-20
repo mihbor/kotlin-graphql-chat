@@ -38,11 +38,11 @@ val login = functionalComponent<LoginFormProps> { props ->
   form {
     attrs.onSubmitFunction = onSubmit
     div("field") {
-      label("label") { +"Email" }
+      label("label") { +"Username" }
       div("control") {
         input(InputType.text, classes = "input") {
           attrs {
-            this.name = "email"
+            this.name = "username"
             value = name
             onChangeFunction = { setName((it.target as HTMLInputElement).value) }
           }

@@ -18,26 +18,19 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.getGraphQLServer
-import io.ktor.application.Application
-import io.ktor.application.ApplicationCall
-import io.ktor.application.call
-import io.ktor.application.install
-import io.ktor.auth.Authentication
-import io.ktor.auth.authenticate
-import io.ktor.auth.jwt.JWTPrincipal
-import io.ktor.auth.jwt.jwt
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
-import io.ktor.request.header
-import io.ktor.response.respond
-import io.ktor.response.respondText
-import io.ktor.routing.Routing
-import io.ktor.routing.get
-import io.ktor.routing.post
-import io.ktor.routing.routing
+import io.ktor.application.*
+import io.ktor.auth.*
+import io.ktor.auth.jwt.*
+import io.ktor.http.*
+import io.ktor.http.cio.websocket.*
+import io.ktor.request.*
+import io.ktor.response.*
+import io.ktor.routing.*
+import io.ktor.websocket.*
 
 fun Application.graphQLModule() {
     install(Routing)
+    install(WebSockets)
     install(Authentication) {
         jwt("auth-jwt") {
             realm = "myRealm"
@@ -57,6 +50,21 @@ fun Application.graphQLModule() {
         authenticate("auth-jwt", optional = true) {
             post("graphql") {
                 handle(call)
+            }
+        }
+        webSocket("/subscriptions") {
+            println("subscriptions websocket!")
+            try {
+                for (frame in incoming) {
+                    if(frame is Frame.Text) {
+                        val receivedText = frame.readText()
+                        println(receivedText)
+                    }
+                }
+                val response = """{"type":"connection_ack"}"""
+                send(response)
+            } catch (e: Exception) {
+                println(e.localizedMessage)
             }
         }
 
