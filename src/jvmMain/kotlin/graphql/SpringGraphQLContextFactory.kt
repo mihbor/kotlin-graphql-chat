@@ -17,14 +17,16 @@
 package graphql
 
 import com.expediagroup.graphql.generator.execution.GraphQLContext
-import com.expediagroup.graphql.server.execution.GraphQLContextFactory
-import io.ktor.auth.principal
-import io.ktor.request.ApplicationRequest
+import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
+import org.springframework.stereotype.Component
+import org.springframework.web.reactive.function.server.ServerRequest
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 
 /**
- * Custom logic for how this example app should create its context given the [ApplicationRequest]
+ * Custom logic for how this example app should create its context given the [ServerRequest]
  */
-class KtorGraphQLContextFactory : GraphQLContextFactory<GraphQLContext, ApplicationRequest> {
+@Component
+class SpringGraphQLContextFactory : SpringGraphQLContextFactory<AuthContext>() {
 
-    override suspend fun generateContext(request: ApplicationRequest) = AuthContext(request.call.principal())
+    override suspend fun generateContext(request: ServerRequest) = AuthContext(request, request.principal().awaitSingleOrNull())
 }

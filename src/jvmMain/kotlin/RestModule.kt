@@ -1,42 +1,29 @@
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import io.ktor.application.*
-import io.ktor.http.*
-import io.ktor.http.content.*
-import io.ktor.request.*
-import io.ktor.response.*
-import io.ktor.routing.*
 import model.Credentials
 import model.Token
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 
 const val jwtSecret = "Zn8Q5tyZ/G1MHltc4F/gTkVJMlrbKiZt"
 
-fun Route.login() {
-  post("/login") {
-    val credentials = call.receive<Credentials>()
+@RestController("/")
+open class RestModule {
+  @PostMapping("/login")
+  open fun login(@RequestBody credentials: Credentials): ResponseEntity<Any> {
+
     val user = data.users.find { it.id == credentials.id }
     if (user == null || user.password != credentials.password) {
-      call.response.status(HttpStatusCode.Unauthorized)
+      return ResponseEntity("Unauthorized", HttpStatus.UNAUTHORIZED)
     } else {
       val token = JWT.create()
         .withSubject(user.id)
         .sign(Algorithm.HMAC256(jwtSecret))
-      call.respond(Token(token))
-    }
-  }
-}
-
-fun Application.restModule() {
-  routing {
-    login()
-    static("/static") {
-      resources()
-    }
-    static {
-      resource("/js.js")
-      resource("/style.css")
-      resource("/{...}", "index.html")
+      return ResponseEntity(Token(token), HttpStatus.OK)
     }
   }
 }

@@ -1,8 +1,10 @@
 package graphql
 
-import com.expediagroup.graphql.generator.execution.GraphQLContext
-import io.ktor.auth.jwt.JWTPrincipal
+import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContext
+import org.springframework.web.reactive.function.server.ServerRequest
+import java.security.Principal
 
-data class AuthContext(
-  val principal: JWTPrincipal?
-) : GraphQLContext
+class AuthContext(
+  request: ServerRequest,
+  val principal: Principal?
+) : SpringGraphQLContext(request)

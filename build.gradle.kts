@@ -2,21 +2,22 @@ import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 val kotlinVersion = "1.5.0"
-val serializationVersion = "1.1.0"
+val serializationVersion = "1.2.0"
 val preKotlinVersion = "pre.156-kotlin-$kotlinVersion"
 val ktorVersion = "1.6.0"
 
 plugins {
     kotlin("multiplatform") version "1.5.0"
     kotlin("plugin.serialization") version "1.4.0"
+    id("org.springframework.boot") version "2.5.3"
     application
 }
+apply(plugin = "io.spring.dependency-management")
 
 group = "me.user"
 version = "1.0-SNAPSHOT"
 
 repositories {
-    jcenter()
     mavenCentral()
     maven { url = uri("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-js-wrappers") }
     maven { url = uri("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") }
@@ -59,12 +60,11 @@ kotlin {
         }
         val jvmMain by getting {
             dependencies {
-                implementation("io.ktor:ktor-server-netty:$ktorVersion")
-                implementation("io.ktor:ktor-html-builder:$ktorVersion")
-                implementation("io.ktor:ktor-auth-jwt:$ktorVersion")
-                implementation("io.ktor:ktor-serialization:$ktorVersion")
-                implementation("io.ktor:ktor-websockets:$ktorVersion")
-                implementation("com.expediagroup:graphql-kotlin-server:4.1.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$kotlinVersion")
+                implementation("com.expediagroup:graphql-kotlin-spring-server:4.2.0")
+                implementation("org.springframework.boot:spring-boot-starter-validation:2.5.3")
+                implementation("org.springframework.boot:spring-boot-starter-webflux:2.5.3")
+                implementation("com.auth0:java-jwt:3.18.1")
             }
         }
         val jvmTest by getting {
@@ -107,20 +107,26 @@ val webpackTask = tasks.getByName<KotlinWebpack>(webpackTaskName).apply {
     outputFileName = "js.js"
 }
 
-tasks.getByName<Jar>("jvmJar") {
-    dependsOn(webpackTask)
-    from(File(webpackTask.destinationDirectory, webpackTask.outputFileName))
-    if(isDevelopment) {
-        from(File(webpackTask.destinationDirectory, webpackTask.outputFileName + ".map"))
+tasks {
+    getByName<Jar>("jvmJar") {
+        dependsOn(webpackTask)
+        from(File(webpackTask.destinationDirectory, webpackTask.outputFileName)) {
+            into("static")
+        }
+        if (isDevelopment) {
+            from(File(webpackTask.destinationDirectory, webpackTask.outputFileName + ".map")) {
+                into("static")
+            }
+        }
     }
-}
 
-tasks.getByName<JavaExec>("run") {
-    dependsOn(tasks.getByName<Jar>("jvmJar"))
-    classpath(tasks.getByName<Jar>("jvmJar"))
-}
+    getByName<JavaExec>("run") {
+        dependsOn(getByName<Jar>("jvmJar"))
+        classpath(getByName<Jar>("jvmJar"))
+    }
 // workaround for https://youtrack.jetbrains.com/issue/KT-46978 / https://youtrack.jetbrains.com/issue/KT-46165
 // until 1.5.30 is released
-tasks.named<Copy>("jvmProcessResources") {
-    duplicatesStrategy = DuplicatesStrategy.WARN
+    named<Copy>("jvmProcessResources") {
+        duplicatesStrategy = DuplicatesStrategy.WARN
+    }
 }
