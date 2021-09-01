@@ -1,3 +1,5 @@
+package chat
+
 import model.Message
 import model.User
 

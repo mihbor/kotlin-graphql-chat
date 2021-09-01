@@ -1,5 +1,6 @@
 package components
 
+import auth.logOut
 import kotlinx.coroutines.MainScope
 import react.RProps
 import react.child
@@ -12,7 +13,10 @@ val app = functionalComponent<RProps>{
 
   val (user, setUser) = useState(auth.getLoggedInUser())
   val logIn: (String) -> Unit = { setUser(it) }
-  val logOut: () -> Unit = { setUser(null) }
+  val logOut: () -> Unit = {
+    logOut()
+    setUser(null)
+  }
 
   if (user == null) {
     child(login) {

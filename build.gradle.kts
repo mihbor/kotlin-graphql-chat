@@ -7,9 +7,11 @@ val preKotlinVersion = "pre.156-kotlin-$kotlinVersion"
 val ktorVersion = "1.6.0"
 
 plugins {
-    kotlin("multiplatform") version "1.5.0"
+    val kotlinVersion = "1.5.0"
+    kotlin("multiplatform") version kotlinVersion
     kotlin("plugin.serialization") version "1.4.0"
     id("org.springframework.boot") version "2.5.3"
+    kotlin("plugin.spring") version kotlinVersion apply false
     application
 }
 apply(plugin = "io.spring.dependency-management")
@@ -98,7 +100,7 @@ kotlin {
 }
 
 application {
-    mainClass.set("ApplicationKt")
+    mainClass.set("chat.ApplicationKt")
 }
 
 val isDevelopment = System.getenv().get("io.ktor.development") == "true"

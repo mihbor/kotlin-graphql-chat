@@ -9,7 +9,7 @@ import kotlinx.coroutines.await
 val authLink = ApolloLink { operation, forward ->
   if (isLoggedIn()) {
     val headers = js("{}")
-    headers.authorization = "Bearer $accessToken"
+    headers.Authorization = "Bearer $accessToken"
     val context = js("{}")
     context.headers = headers
     operation.setContext(context)
@@ -23,6 +23,8 @@ val httpLink = ApolloLink.from(arrayOf(
     uri = "http://localhost:8080/graphql"
   })
 ))
+
+val wsLink =
 
 val apolloCache = InMemoryCache()
 

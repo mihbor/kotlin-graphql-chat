@@ -1,3 +1,4 @@
+package chat
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
@@ -11,7 +12,7 @@ import org.springframework.http.ResponseEntity
 
 const val jwtSecret = "Zn8Q5tyZ/G1MHltc4F/gTkVJMlrbKiZt"
 
-@RestController("/")
+@RestController
 open class RestModule {
   @PostMapping("/login")
   open fun login(@RequestBody credentials: Credentials): ResponseEntity<Any> {
