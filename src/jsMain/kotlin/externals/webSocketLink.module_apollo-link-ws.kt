@@ -12,7 +12,7 @@ external open class WebSocketLink : ApolloLink {
     open fun request(operation: Operation): Observable<LocalExecutionResult<dynamic> /* ExecutionResult<dynamic> & `T$14`<Record<string, any>, Record<string, any>> */>?
     interface Configuration {
         var uri: String
-        var options: Any?
+        var options: ClientOptions?
             get() = definedExternally
             set(value) = definedExternally
         var webSocketImpl: Any?

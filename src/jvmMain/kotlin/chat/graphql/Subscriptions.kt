@@ -11,10 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired
 class Subscriptions(@Autowired val messages: Messages) : Subscription {
   fun messageAdded(context: SubscriptionAuthContext): Flux<Message> {
     println("subscription subject: ${context.subject}")
-//    if (context.subject == null) {
-//      throw Exception("Forbidden")
-//    } else {
+    if (context.subject == null) {
+      throw Exception("Forbidden")
+    } else {
       return messages.flux
-//    }
+    }
   }
 }

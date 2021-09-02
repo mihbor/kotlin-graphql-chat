@@ -28,7 +28,9 @@ val httpLink = ApolloLink.from(arrayOf(
 
 val wsLink = WebSocketLink((js("{}") as WebSocketLink.Configuration).apply {
   uri = "ws://localhost:8080/subscriptions"
-  options = js("""{"lazy": true, "reconnect": true}""")
+  options = ClientOptions(lazy = true, reconnect = true) {
+    Authorization = "Bearer $accessToken"
+  }
 })
 
 val apolloCache = InMemoryCache()
@@ -81,6 +83,18 @@ fun <TVariables> SubscriptionOptions(
   }
 }
 
+fun ClientOptions(
+  lazy: Boolean?,
+  reconnect: Boolean?,
+  connectionParams: (dynamic.() -> Unit)?
+) = (js("{}") as ClientOptions).apply {
+  this.lazy = lazy
+  this.reconnect = reconnect
+  connectionParams?.let {
+    this.connectionParams = { provide(it) }
+  }
+}
+
 fun WriteQueryOptions(
   query: DocumentNode,
   data: dynamic,
@@ -95,9 +109,9 @@ fun WriteQueryOptions(
 }
 
 fun provide(provider: (dynamic.() -> Unit)) : dynamic {
-  val variables = js("{}")
-  provider.invoke(variables)
-  return variables
+  val container = js("{}")
+  provider.invoke(container)
+  return container
 }
 
 object Apollo {
