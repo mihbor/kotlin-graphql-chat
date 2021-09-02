@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 @Component
 class Queries : Query {
   fun messages(context: SpringAuthContext): List<Message> {
-    println(context.subject)
+    println("query subject: ${context.subject}")
     if (context.subject == null) {
       throw Exception("Forbidden")
     } else {

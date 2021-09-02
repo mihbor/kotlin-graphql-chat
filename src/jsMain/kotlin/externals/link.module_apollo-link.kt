@@ -20,7 +20,7 @@ external open class ApolloLink(request: RequestHandler = definedExternally) {
     companion object {
         var empty: Any
         fun from(links: Array<ApolloLink>): ApolloLink
-        var split: Any
+        fun split(test: (op: Operation) -> Boolean, left: ApolloLink, right: ApolloLink = definedExternally): ApolloLink
         var execute: Any
     }
 }

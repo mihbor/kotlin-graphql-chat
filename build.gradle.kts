@@ -87,8 +87,11 @@ kotlin {
 
                 implementation(npm("react-apollo", "3.1.5"))
                 implementation(npm("apollo-boost", "0.4.9"))
+                implementation(npm("apollo-link-ws", "1.0.20"))
+                implementation(npm("apollo-utilities", "1.3.4"))
                 implementation(npm("graphql", "15.5.1"))
                 implementation(npm("jsonwebtoken", "8.5.1"))
+                implementation(npm("subscriptions-transport-ws", "0.9.19"))
             }
         }
         val jsTest by getting {

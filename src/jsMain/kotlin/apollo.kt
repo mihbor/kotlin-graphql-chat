@@ -1,8 +1,10 @@
 import apollo.*
+import apollo.ApolloLink.Companion.split
 import apollo.DataProxy.WriteQueryOptions
 import auth.accessToken
 import auth.isLoggedIn
 import graphql.DocumentNode
+import graphql.OperationDefinitionNode
 import graphql.gql
 import kotlinx.coroutines.await
 
@@ -24,13 +26,21 @@ val httpLink = ApolloLink.from(arrayOf(
   })
 ))
 
-val wsLink =
+val wsLink = WebSocketLink((js("{}") as WebSocketLink.Configuration).apply {
+  uri = "ws://localhost:8080/subscriptions"
+  options = js("""{"lazy": true, "reconnect": true}""")
+})
 
 val apolloCache = InMemoryCache()
 
+val isSubscription: (Operation) -> Boolean = {
+  val definition = getMainDefinition(it.query as DocumentNode) as OperationDefinitionNode
+  definition.kind == "OperationDefinition" && definition.operation == "subscription"
+}
+
 val apolloClient = ApolloClient(
   (js("{}") as ApolloClientOptions<NormalizedCacheObject>).apply {
-    link = httpLink
+    link = split(isSubscription, wsLink, httpLink)
     cache = apolloCache
   }
 )
@@ -56,6 +66,16 @@ fun <T, TVariables> MutationOptions(
   this.mutation = mutation
   this.fetchPolicy = fetchPolicy
   this.update = update
+  variablesProvider?.let {
+    this.variables = provide(it)
+  }
+}
+
+fun <TVariables> SubscriptionOptions(
+  subscription: DocumentNode,
+  variablesProvider: (dynamic.() -> Unit)?
+) = (js("{}") as SubscriptionOptions<TVariables>).apply {
+  this.query = subscription
   variablesProvider?.let {
     this.variables = provide(it)
   }
@@ -106,4 +126,9 @@ object Apollo {
     update: MutationUpdaterFn<dynamic>? = null,
     variables: (dynamic.() -> Unit)? = null
   ) = apolloClient.mutate<dynamic, Any?>(MutationOptions(mutation, fetchPolicy, update, variables)).await()
+
+  fun subscribe(
+    subscription: DocumentNode,
+    variables: (dynamic.() -> Unit)? = null
+  ) = apolloClient.subscribe<dynamic, Any?>(SubscriptionOptions(subscription, variables))
 }

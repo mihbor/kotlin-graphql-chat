@@ -43,6 +43,20 @@ object API {
     "  message: addMessage(text: \$text) { id from text }" +
     "}")
 
+  val messageAddedSubscription = gql("""
+    subscription subscription {
+      messageAdded { id text from }
+    }""")
+
+  fun onMessageAdded(handleMessage: (Message) -> Unit): () -> Unit {
+    val observable = Apollo.subscribe(messageAddedSubscription)
+    val subscription = observable.subscribe {
+      console.log("Result: ${JSON.stringify(it.data)}")
+      handleMessage(json.decodeFromDynamic(it.data.messageAdded))
+    }
+    return { subscription.unsubscribe() }
+  }
+
   suspend fun addMessage(text: String) = json.decodeFromDynamic<Message>(
     Apollo.mutate(addMessageMutation) { this.text = text }
       .data.message
