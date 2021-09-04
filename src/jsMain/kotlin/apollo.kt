@@ -1,12 +1,17 @@
 import apollo.*
 import apollo.ApolloLink.Companion.split
 import apollo.DataProxy.WriteQueryOptions
+import apollo.MutationOptions
+import apollo.QueryOptions
+import apollo.SubscriptionOptions
+import apollo.react.*
 import auth.accessToken
 import auth.isLoggedIn
 import graphql.DocumentNode
 import graphql.OperationDefinitionNode
 import graphql.gql
 import kotlinx.coroutines.await
+import kotlin.js.Promise
 
 val authLink = ApolloLink { operation, forward ->
   if (isLoggedIn()) {
@@ -71,6 +76,28 @@ fun <T, TVariables> MutationOptions(
   variablesProvider?.let {
     this.variables = provide(it)
   }
+}
+
+fun <T, TVariables> MutationFunctionOptions(
+  fetchPolicy: String? = null,
+  update: MutationUpdaterFn<T>? = null,
+  variablesProvider: (dynamic.() -> Unit)?
+) = (js("{}") as MutationFunctionOptions<T, TVariables>).apply {
+  this.fetchPolicy = fetchPolicy
+  this.update = update
+  variablesProvider?.let {
+    this.variables = provide(it)
+  }
+}
+
+fun useMutation(
+  mutation: DocumentNode,
+  options: MutationHookOptions<dynamic, dynamic>? = null
+): Pair<(MutationFunctionOptions<dynamic, dynamic>) -> Promise<ExecutionResult<dynamic>>, MutationResult<dynamic>> {
+  val tuple = options?.let { useMutation<dynamic, dynamic>(mutation, it) } ?: useMutation<dynamic, dynamic>(mutation)
+  val function = tuple[0] as (options: MutationFunctionOptions<dynamic, dynamic>) -> Promise<ExecutionResult<dynamic>>
+  val result = tuple[1] as MutationResult<dynamic>
+  return Pair(function, result)
 }
 
 fun <TVariables> SubscriptionOptions(

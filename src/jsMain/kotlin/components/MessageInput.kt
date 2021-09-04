@@ -1,12 +1,7 @@
 package components
 
-import json
 import kotlinx.html.InputType
 import kotlinx.html.js.onKeyPressFunction
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.encodeToDynamic
-import org.w3c.dom.events.Event
-import org.w3c.dom.events.KeyboardEvent
 import react.RProps
 import react.dom.div
 import react.dom.input

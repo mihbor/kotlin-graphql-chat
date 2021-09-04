@@ -8,7 +8,9 @@ import org.springframework.stereotype.Component
 
 @Component
 class Messages {
-  lateinit var emit: (Message) -> Unit
+  var emit: ((Message) -> Unit)? = null
+    private set
+
   val flux = Flux.create<Message>{ emitter ->
     emit = { emitter.next(it) }
   }.share()

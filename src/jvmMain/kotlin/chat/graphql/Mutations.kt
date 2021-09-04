@@ -17,7 +17,7 @@ class Mutations(@Autowired val messages: Messages) : Mutation {
     } else {
       val id = UUID.randomUUID().toString()
       val message = Message(id, text, context.subject!!)
-      messages.emit(message)
+      messages.emit?.invoke(message)
       data.messages.add(message)
       return message
     }

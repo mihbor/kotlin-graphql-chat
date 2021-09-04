@@ -6,7 +6,6 @@ import kotlinx.browser.localStorage
 import model.Credentials
 
 const val accessTokenKey = "accessToken"
-const val loginUrl = "http://localhost:9000/login"
 
 fun getUserFromToken(token: String): String = decodeJWT(token).sub
 
